@@ -9,7 +9,15 @@
   "module": "dist/k-forms.esm.js",
   "browser": "dist/k-forms.umd.js",
   "dependencies": {
-    "ramda": "^0.25.0"
+    "k-logic": "^0.0.6",
+    "k-reducer": "^0.2.3",
+    "ramda": "^0.25.0",
+    "react": "^16.5.2",
+    "react-redux": "^5.0.7",
+    "recompose": "^0.30.0",
+    "redux": "^4.0.1",
+    "redux-actions": "^2.6.4",
+    "reselect": "^4.0.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.0.0",

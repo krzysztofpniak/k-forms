@@ -7,7 +7,6 @@
   "repository": "github:krzysztofpniak/k-forms",
   "main": "dist/k-forms.cjs.js",
   "module": "dist/k-forms.esm.js",
-  "browser": "dist/k-forms.umd.js",
   "dependencies": {
     "k-logic": "^0.4.2",
     "k-reducer": "^0.2.5",

@@ -9,8 +9,8 @@
   "module": "dist/k-forms.esm.js",
   "browser": "dist/k-forms.umd.js",
   "dependencies": {
-    "k-logic": "^0.0.6",
-    "k-reducer": "^0.2.3",
+    "k-logic": "^0.4.2",
+    "k-reducer": "^0.2.5",
     "ramda": "^0.25.0",
     "react": "^16.5.2",
     "react-redux": "^5.0.7",

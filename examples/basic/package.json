@@ -5,8 +5,8 @@
   "license": "MIT",
   "dependencies": {
     "@babel/polyfill": "^7.0.0",
-    "k-logic": "0.0.5",
-    "k-reducer": "0.2.3",
+    "k-logic": "0.4.2",
+    "k-reducer": "0.2.5",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
     "react-redux": "^5.0.7",

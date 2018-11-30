@@ -2939,11 +2939,11 @@ jsonpointer@^4.0.0:
   version "4.0.1"
   resolved "https://registry.yarnpkg.com/jsonpointer/-/jsonpointer-4.0.1.tgz#4fd92cb34e0e9db3c89c8622ecf51f9b978c6cb9"
 
-k-logic@0.0.5:
-  version "0.0.5"
-  resolved "https://registry.yarnpkg.com/k-logic/-/k-logic-0.0.5.tgz#ef6ebe5df8478b25cd5405caebc9c0e3b9f2be3f"
+k-logic@0.4.2:
+  version "0.4.2"
+  resolved "https://registry.yarnpkg.com/k-logic/-/k-logic-0.4.2.tgz#530bf00add0d37a1867b9a03b3a8d382aa570212"
   dependencies:
-    k-reducer "^0.2.1"
+    k-reducer "^0.2.5"
     path-parser "^4.2.0"
     ramda "^0.25.0"
     react "^16.5.2"
@@ -2953,9 +2953,9 @@ k-logic@0.0.5:
     redux-saga "^0.16.2"
     reselect "^4.0.0"
 
-k-reducer@0.2.3, k-reducer@^0.2.1:
-  version "0.2.3"
-  resolved "https://registry.yarnpkg.com/k-reducer/-/k-reducer-0.2.3.tgz#ee05a29de8b2a78f902b2ba08dae77e10fddf770"
+k-reducer@0.2.5, k-reducer@^0.2.5:
+  version "0.2.5"
+  resolved "https://registry.yarnpkg.com/k-reducer/-/k-reducer-0.2.5.tgz#9e8536d1f171cf3defe3bc923e0f22b7c566ee6f"
   dependencies:
     ramda "^0.25.0"
 

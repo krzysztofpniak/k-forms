@@ -8,8 +8,6 @@
   "main": "dist/k-forms.cjs.js",
   "module": "dist/k-forms.esm.js",
   "dependencies": {
-    "k-logic": "^0.5.0",
-    "k-reducer": "^0.2.5",
     "ramda": "^0.25.0",
     "react": "^16.5.2",
     "react-redux": "^5.0.7",
@@ -17,6 +15,10 @@
     "redux": "^4.0.1",
     "redux-actions": "^2.6.4",
     "reselect": "^4.0.0"
+  },
+  "peerDependencies": {
+    "k-reducer": "^0.2.5",
+    "k-logic": "^0.5.0"
   },
   "devDependencies": {
     "@babel/cli": "^7.0.0",

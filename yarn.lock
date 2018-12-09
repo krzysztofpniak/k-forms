@@ -2682,9 +2682,9 @@ just-curry-it@^3.1.0:
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/just-curry-it/-/just-curry-it-3.1.0.tgz#ab59daed308a58b847ada166edd0a2d40766fbc5"
 
-k-logic@^0.4.2:
-  version "0.4.2"
-  resolved "https://registry.yarnpkg.com/k-logic/-/k-logic-0.4.2.tgz#530bf00add0d37a1867b9a03b3a8d382aa570212"
+k-logic@^0.5.0:
+  version "0.5.0"
+  resolved "https://registry.yarnpkg.com/k-logic/-/k-logic-0.5.0.tgz#44ad901d2233104ceacb17a1604c748ce9c87a0b"
   dependencies:
     k-reducer "^0.2.5"
     path-parser "^4.2.0"

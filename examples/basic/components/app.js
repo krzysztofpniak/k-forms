@@ -1,13 +1,9 @@
 import React from 'react';
 import {KForm} from '../../../src/main';
 import {createReducer, actionType2} from 'k-reducer';
-import {withLogic} from 'k-logic';
+import {Scope, withScope, useKReducer} from 'k-logic';
 import {compose, over, lensProp, add} from 'ramda';
 import {withHandlers, setStatic} from 'recompose';
-
-const Scope = withLogic({reducer: () => createReducer({}, [])})(
-  ({children}) => <div>{children}</div>
-);
 
 const schema2 = [
   {
@@ -21,21 +17,22 @@ const schema2 = [
   },
 ];
 
-const Expand = compose(
-  withLogic({
-    reducer: () =>
-      createReducer({counter: 0}, [
-        actionType2('INC', over(lensProp('counter'), add(1))),
-      ]),
-  }),
-  withHandlers({
-    onClick: props => e => props.dispatch({type: 'INC'}),
-  })
-)(({children, counter, onClick}) => (
-  <button onClick={onClick} type="button">
-    {`Hopla ${counter}`}
-  </button>
-));
+const counterReducer = createReducer({counter: 0}, [
+  actionType2('INC', over(lensProp('counter'), add(1))),
+]);
+
+const counterActions = {
+  inc: () => ({type: 'INC'}),
+};
+
+const Expand = withScope(() => {
+  const {counter, inc} = useKReducer(counterReducer, counterActions);
+  return (
+    <button onClick={inc} type="button">
+      {`Hopla ${counter}`}
+    </button>
+  );
+});
 
 const fieldTypes = {
   text: ({value, onChange}) => <input value={value} onChange={onChange} />,

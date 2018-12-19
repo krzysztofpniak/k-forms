@@ -20,7 +20,7 @@ import {
 } from './selectors';
 import {createUpdaterCreator} from './updater';
 import {withProps, defaultProps} from 'recompose';
-import {fetchOnEvery, handleAsyncs, withLogic} from 'k-logic';
+import {fetchOnEvery, handleAsyncs, KLogicContext, withScope} from 'k-logic';
 const mapWithKey = addIndex(map);
 
 const validateField = (fieldSchema, model) =>
@@ -68,6 +68,8 @@ const GenericError = ({content}) => (
 );
 
 class ElmForm extends React.PureComponent {
+  static contextType = KLogicContext;
+
   constructor() {
     super();
     this.controls = {};
@@ -81,9 +83,15 @@ class ElmForm extends React.PureComponent {
     this.handleInputRef = this.handleInputRef.bind(this);
     this.getFieldError = this.getFieldError.bind(this);
     this.getInputComponent = this.getInputComponent.bind(this);
+    this.getModel = this.getModel.bind(this);
   }
+
+  getModel() {
+    return this.context.state.fields ? this.context.state : {fields: {}};
+  }
+
   componentDidMount() {
-    const visibleFields = visibleFieldsSelector(this.props.model, this.props);
+    const visibleFields = visibleFieldsSelector(this.getModel(), this.props);
     if (visibleFields && visibleFields.length > 0) {
       const firstField = visibleFields[0];
       const firstControl = this.controls[firstField.id];
@@ -91,10 +99,14 @@ class ElmForm extends React.PureComponent {
         firstControl.focus();
       }
     }
+    this.context.assocReducer(
+      [...this.context.scope, '.'],
+      createUpdaterCreator(this.props.fieldTypes)(this.props.schema)
+    );
   }
   componentWillReceiveProps(nextProps) {
     if (nextProps.asyncErrors !== this.props.asyncErrors) {
-      const fields = visibleFieldsSelector(this.props.model, this.props);
+      const fields = visibleFieldsSelector(this.getModel(), this.props);
       const fieldWithAsyncError = find(
         field => nextProps.asyncErrors[field.id],
         fields
@@ -109,7 +121,8 @@ class ElmForm extends React.PureComponent {
     }
   }
   defaultCancelHandler() {
-    const {dispatch, resetOnCancel} = this.props;
+    const {resetOnCancel} = this.props;
+    const dispatch = this.context.dispatch;
     dispatch(reset({resetOnCancel: boolWithDefault(true, resetOnCancel)}));
   }
   handleCancel() {
@@ -119,7 +132,9 @@ class ElmForm extends React.PureComponent {
       : this.defaultCancelHandler();
   }
   defaultSubmitHandler() {
-    const {schema, model, resetOnSubmit, dispatch, asyncErrors} = this.props;
+    const {schema, resetOnSubmit, asyncErrors} = this.props;
+    const dispatch = this.context.dispatch;
+    const model = this.getModel();
     const formErrors = validateForm(schema, model, asyncErrors || {});
     const syncErrors = filter(e => e.error, formErrors);
 
@@ -157,12 +172,14 @@ class ElmForm extends React.PureComponent {
   handleSubmit(e) {
     e.preventDefault();
     const {onSubmit} = this.props;
+    const model = this.getModel();
     return onSubmit
-      ? onSubmit(this.defaultSubmitHandler, this.props.model.fields)
+      ? onSubmit(this.defaultSubmitHandler, model.fields)
       : this.defaultSubmitHandler();
   }
   getFieldError(field) {
-    const {asyncErrors, model} = this.props;
+    const {asyncErrors} = this.props;
+    const model = this.getModel();
     const fieldAsyncError = (asyncErrors || {})[field.id];
     const asyncError = !model.dirty && !model.submitDirty && fieldAsyncError;
 
@@ -173,7 +190,8 @@ class ElmForm extends React.PureComponent {
     );
   }
   setFieldValue(id, value) {
-    const {model, dispatch} = this.props;
+    const dispatch = this.context.dispatch;
+    const model = this.getModel();
     const fields = indexedSchemaSelector(model, this.props);
     const field = fields[id];
     if (field.debounce) {
@@ -188,7 +206,7 @@ class ElmForm extends React.PureComponent {
     }
   }
   handleOnChange(value, fieldId) {
-    const {model} = this.props;
+    const model = this.getModel();
     const fields = indexedSchemaSelector(model, this.props);
     const field = fields[fieldId];
     if (field.onChange) {
@@ -210,8 +228,6 @@ class ElmForm extends React.PureComponent {
   }
   render() {
     const {
-      model,
-      dispatch,
       legend,
       asyncErrors,
       name,
@@ -219,6 +235,8 @@ class ElmForm extends React.PureComponent {
       formGroupTemplate,
       buttonsTemplate,
     } = this.props;
+
+    const model = this.getModel();
 
     const fields = mapWithKey(
       (f, idx) =>
@@ -291,14 +309,12 @@ const fieldTypes = {
 };
 
 const KForm = compose(
+  withScope,
   defaultProps({
     formTemplate: FormTemplate,
     formGroupTemplate: FormGroupTemplate,
     buttonsTemplate: ButtonsTemplate,
     fieldTypes: fieldTypes,
-  }),
-  withLogic({
-    reducer: props => createUpdaterCreator(props.fieldTypes)(props.schema),
   }),
   withProps(props => ({
     model: props,

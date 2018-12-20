@@ -104,6 +104,11 @@ class ElmForm extends React.PureComponent {
       createUpdaterCreator(this.props.fieldTypes)(this.props.schema)
     );
   }
+
+  componentWillUnmount() {
+    this.context.dissocReducer([...this.context.scope, '.']);
+  }
+
   componentWillReceiveProps(nextProps) {
     if (nextProps.asyncErrors !== this.props.asyncErrors) {
       const fields = visibleFieldsSelector(this.getModel(), this.props);

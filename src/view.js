@@ -320,10 +320,7 @@ const KForm = compose(
     formGroupTemplate: FormGroupTemplate,
     buttonsTemplate: ButtonsTemplate,
     fieldTypes: fieldTypes,
-  }),
-  withProps(props => ({
-    model: props,
-  }))
+  })
 )(ElmForm);
 
 export default KForm;

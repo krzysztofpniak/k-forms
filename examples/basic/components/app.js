@@ -75,7 +75,7 @@ const Row = ({input, label, error}) => (
 const FormTemplate = ({buttons, fields}) => (
   <div>
     {buttons}
-    {fields}
+    {fields.default}
     {buttons}
   </div>
 );

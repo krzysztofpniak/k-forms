@@ -18,8 +18,10 @@ import {
   compose,
   mapObjIndexed,
   fromPairs,
-  merge,
+  mergeRight,
   has,
+  reduceBy,
+  propOr,
   pathOr,
 } from 'ramda';
 import withDebug from './withDebug';
@@ -199,7 +201,7 @@ class ElmForm extends React.PureComponent {
       map(field => [field.id, null])
     )(schema);
 
-    const fields = merge(fieldsDefaults, model.fields);
+    const fields = mergeRight(fieldsDefaults, model.fields);
 
     const fieldsValues = mapObjIndexed(
       (val, key) =>
@@ -490,26 +492,30 @@ const Form2 = withScope(
     const genericError = <div>genericError</div>;
     const legend = <div>legend</div>;
 
-    const renderedFields = useMemo(
-      () =>
-        mapWithKey(
-          (f, idx) => (
-            <Field
-              key={idx}
-              id={f.id}
-              label={f.label}
-              formGroupTemplate={formGroupTemplate}
-              formName={name}
-              onChange={handleOnChange}
-              fieldSchema={f}
-              component={fieldTypes[f.type || 'text']}
-            />
-          ),
-          //filter(f => !f.visible || f.visible(fields), schema)
-          schema
+    const groupFields = useCallback(
+      (acc, f) =>
+        console.log('xxx', f) ||
+        acc.concat(
+          <Field
+            key={(name || '') + (name ? '-' : '') + f.id}
+            id={f.id}
+            label={f.label}
+            formGroupTemplate={formGroupTemplate}
+            formName={name}
+            onChange={handleOnChange}
+            fieldSchema={f}
+            component={fieldTypes[f.type || 'text']}
+          />
         ),
+      [formGroupTemplate, fieldTypes, name]
+    );
+
+    const renderedFields = useMemo(
+      () => reduceBy(groupFields, [], propOr('default', 'group'), schema),
       [schema]
     );
+
+    console.log(renderedFields);
 
     const renderedForm = useMemo(
       () =>
@@ -529,7 +535,7 @@ const Form2 = withScope(
 
 const FormTemplate = ({fields, buttons}) => (
   <div>
-    {fields} {buttons}
+    {fields.default} {buttons}
   </div>
 );
 

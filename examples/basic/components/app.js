@@ -1,5 +1,5 @@
 import React from 'react';
-import {KForm, Form2} from '../../../src/main';
+import {KForm, Form} from '../../../src/main';
 import {required} from '../../../src/validators';
 import {createReducer, actionType2} from 'k-reducer';
 import {Scope, withScope, useKReducer} from 'k-logic';
@@ -89,9 +89,9 @@ const Button = ({submit, onReset}) => (
 const App = () => (
   <Scope scope="app">
     <div>pierwszy form</div>
-    <Form2 scope="form0" schema={schema1} fieldTypes={fieldTypes} />
+    <Form scope="form0" schema={schema1} fieldTypes={fieldTypes} />
     <div>drugi form</div>
-    <Form2
+    <Form
       scope="form2"
       schema={schema2}
       fieldTypes={fieldTypes}

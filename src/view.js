@@ -501,7 +501,6 @@ const Form2 = withScope(
 
     const groupFields = useCallback(
       (acc, f) =>
-        console.log('xxx', f) ||
         acc.concat(
           <Field
             key={(name || '') + (name ? '-' : '') + f.id}

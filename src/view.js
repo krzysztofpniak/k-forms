@@ -485,7 +485,6 @@ const Form2 = withScope(
 
     const buttons = useMemo(
       () =>
-        console.log('buttons rendered') ||
         createElement(buttonsTemplate, {
           submit: handleSubmit,
           onReset: handleSubmit,
@@ -520,8 +519,6 @@ const Form2 = withScope(
       () => reduceBy(groupFields, [], propOr('default', 'group'), schema),
       [schema]
     );
-
-    console.log(renderedFields);
 
     const renderedForm = useMemo(
       () =>

@@ -360,7 +360,11 @@ const Field = ({
   const context = useContext(KLogicContext);
 
   const [state, setState] = useState(
-    pathOr({}, [...context.scope, 'fields', id], context.getState())
+    pathOr(
+      fieldSchema.defaultValue || '',
+      [...context.scope, 'fields', id],
+      context.getState()
+    )
   );
 
   const stateRef = useRef(state);

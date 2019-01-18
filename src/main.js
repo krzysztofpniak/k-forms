@@ -1,4 +1,4 @@
-import KForm, {Form2} from './view';
+import KForm, {Form} from './view';
 import {
   createUpdater,
   getInitialModel,
@@ -15,8 +15,7 @@ import {
 import {addValueParam} from './helpers';
 
 export {
-  KForm,
-  Form2,
+  Form,
   createUpdater,
   getInitialModel,
   reset,

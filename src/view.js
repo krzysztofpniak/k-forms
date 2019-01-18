@@ -414,7 +414,7 @@ const Field = ({
   return field;
 };
 
-const Form2 = withScope(
+const Form = withScope(
   ({
     name,
     formTemplate,
@@ -582,4 +582,4 @@ Form2.defaultProps = {
 
 export default KForm;
 
-export {validateForm, validateField, Form2};
+export {validateForm, validateField, Form};

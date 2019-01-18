@@ -424,6 +424,9 @@ const Form2 = withScope(
     fieldTypes,
     schema,
     resetOnSubmit,
+    cancelText,
+    submitText,
+    additionalButtons,
   }) => {
     const context = useContext(KLogicContext);
     const fields0 = useMemo(() => {}, []);
@@ -486,8 +489,12 @@ const Form2 = withScope(
         createElement(buttonsTemplate, {
           submit: handleSubmit,
           onReset: handleSubmit,
+          formName: name,
+          cancelText,
+          submitText,
+          dirty: false,
         }),
-      [buttonsTemplate, handleSubmit]
+      [buttonsTemplate, handleSubmit, name, cancelText, submitText]
     );
     const genericError = <div>genericError</div>;
     const legend = <div>legend</div>;

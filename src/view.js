@@ -486,7 +486,7 @@ const Form2 = withScope(
     const buttons = useMemo(
       () =>
         createElement(buttonsTemplate, {
-          submit: handleSubmit,
+          onSubmit: handleSubmit,
           onReset: handleSubmit,
           formName: name,
           cancelText,
@@ -548,9 +548,9 @@ const FormGroupTemplate = ({label, input, error}) => (
   </div>
 );
 
-const ButtonsTemplate = ({submit, onReset}) => (
+const ButtonsTemplate = ({onSubmit, onReset}) => (
   <div>
-    <button type="submit" onClick={submit}>
+    <button type="submit" onClick={onSubmit}>
       Save
     </button>
     <button type="button" onClick={onReset}>

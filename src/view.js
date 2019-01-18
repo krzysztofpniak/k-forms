@@ -351,7 +351,7 @@ const Field = ({
   id,
   formGroupTemplate,
   formName,
-  label,
+  title,
   onChange,
   component,
   fieldSchema,
@@ -387,11 +387,11 @@ const Field = ({
       );
       const error = validateField(fieldSchema, model);
       return createElement(formGroupTemplate, {
-        label,
+        title,
         input: createElement(EnhancedInput, {
           component,
           id: (formName || '') + (formName ? '-' : '') + id,
-          label,
+          title,
           /*value:
             fields[
               f.debounce && has(`${f.id}_raw`, fields) ? `${f.id}_raw` : f.id
@@ -504,7 +504,7 @@ const Form = withScope(
           <Field
             key={(name || '') + (name ? '-' : '') + f.id}
             id={f.id}
-            label={f.label}
+            title={f.title}
             formGroupTemplate={formGroupTemplate}
             formName={name}
             onChange={handleOnChange}
@@ -542,9 +542,9 @@ const FormTemplate = ({fields, buttons}) => (
   </div>
 );
 
-const FormGroupTemplate = ({label, input, error}) => (
+const FormGroupTemplate = ({title, input, error}) => (
   <div>
-    {label} {input} {error}
+    {title} {input} {error}
   </div>
 );
 

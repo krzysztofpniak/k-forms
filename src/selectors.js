@@ -50,10 +50,10 @@ const visibleFieldsSelectorCreator = () =>
         (f, idx) =>
           createElement(formGroupTemplate, {
             key: idx,
-            label: f.label,
+            title: f.title,
             input: createElement(fieldTypes[f.type || 'text'], {
               id: (name || '') + (name ? '-' : '') + f.id,
-              label: f.label,
+              title: f.title,
               value:
                 fields[
                   f.debounce && has(`${f.id}_raw`, fields)

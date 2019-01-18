@@ -9,11 +9,11 @@ import {withHandlers, setStatic} from 'recompose';
 const schema2 = [
   {
     id: 'name',
-    label: 'Name',
+    title: 'Name',
   },
   {
     id: 'age',
-    label: 'Age',
+    title: 'Age',
     defaultValue: '10',
   },
 ];
@@ -43,30 +43,30 @@ const fieldTypes = {
 const schema1 = [
   {
     id: 'name',
-    label: 'Name',
+    title: 'Name',
     defaultValue: 'Jaśko',
   },
   {
     id: 'surname',
-    label: 'Surname',
+    title: 'Surname',
     defaultValue: '',
     validate: required,
   },
   {
     id: 'job',
-    label: 'Job',
+    title: 'Job',
     type: 'expand',
   },
   {
     id: 'job2',
-    label: 'Job 2',
+    title: 'Job 2',
     type: 'expand',
   },
 ];
 
-const Row = ({input, label, error}) => (
+const Row = ({input, title, error}) => (
   <div style={{border: 'solid red 1px'}}>
-    <div>{label}</div>
+    <div>{title}</div>
     <div>{input}</div>
     <div>{error}</div>
   </div>

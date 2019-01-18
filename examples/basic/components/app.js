@@ -1,5 +1,6 @@
 import React from 'react';
-import {KForm} from '../../../src/main';
+import {KForm, Form2} from '../../../src/main';
+import {required} from '../../../src/validators';
 import {createReducer, actionType2} from 'k-reducer';
 import {Scope, withScope, useKReducer} from 'k-logic';
 import {compose, over, lensProp, add} from 'ramda';
@@ -46,6 +47,12 @@ const schema1 = [
     defaultValue: 'Jaśko',
   },
   {
+    id: 'surname',
+    label: 'Surname',
+    defaultValue: '',
+    validate: required,
+  },
+  {
     id: 'job',
     label: 'Job',
     type: 'expand',
@@ -57,10 +64,11 @@ const schema1 = [
   },
 ];
 
-const Row = ({input, label}) => (
+const Row = ({input, label, error}) => (
   <div style={{border: 'solid red 1px'}}>
     <div>{label}</div>
     <div>{input}</div>
+    <div>{error}</div>
   </div>
 );
 
@@ -80,9 +88,10 @@ const Button = ({submit, onReset}) => (
 
 const App = () => (
   <Scope scope="app">
-    <KForm scope="form1" schema={schema1} fieldTypes={fieldTypes} />
-    <div>Drugi form</div>
-    <KForm
+    <div>pierwszy form</div>
+    <Form2 scope="form0" schema={schema1} fieldTypes={fieldTypes} />
+    <div>drugi form</div>
+    <Form2
       scope="form2"
       schema={schema2}
       fieldTypes={fieldTypes}

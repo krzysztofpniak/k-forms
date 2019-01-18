@@ -1,4 +1,14 @@
-import React, {createElement} from 'react';
+import React, {
+  createElement,
+  useCallback,
+  useMemo,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+  useContext,
+  PureComponent,
+} from 'react';
 import {
   filter,
   map,
@@ -10,17 +20,25 @@ import {
   fromPairs,
   merge,
   has,
+  pathOr,
 } from 'ramda';
-import {forwardTo} from 'k-reducer';
+import withDebug from './withDebug';
 import {setField, submit, reset, setSubmitDirty} from './actions';
 import {
-  visibleFieldsSelector,
+  visibleFieldsSelectorCreator,
   indexedSchemaSelector,
   fieldTypesSelector,
 } from './selectors';
-import {createUpdaterCreator} from './updater';
+import {createUpdater} from './updater';
 import {withProps, defaultProps} from 'recompose';
-import {fetchOnEvery, handleAsyncs, KLogicContext, withScope} from 'k-logic';
+import {
+  fetchOnEvery,
+  handleAsyncs,
+  KLogicContext,
+  withScope,
+  useKReducer,
+  bindActionCreators,
+} from 'k-logic';
 const mapWithKey = addIndex(map);
 
 const validateField = (fieldSchema, model) =>
@@ -67,6 +85,31 @@ const GenericError = ({content}) => (
   </div>
 );
 
+const useFrozenReducer = (reducer, actions) => {
+  const context = useContext(KLogicContext);
+
+  useLayoutEffect(() => {
+    const reducerPath = [...context.scope, '.'];
+    context.assocReducer(reducerPath, reducer);
+    return () => {
+      context.dissocReducer(reducerPath);
+    };
+  }, []);
+
+  //TODO: performance
+  const initialState = reducer(undefined, {type: '@@INIT'});
+
+  const result = useMemo(
+    () => ({
+      ...bindActionCreators(actions, context.dispatch),
+      ...initialState,
+    }),
+    []
+  );
+
+  return result;
+};
+
 class ElmForm extends React.PureComponent {
   static contextType = KLogicContext;
 
@@ -82,16 +125,20 @@ class ElmForm extends React.PureComponent {
     this.defaultCancelHandler = this.defaultCancelHandler.bind(this);
     this.handleInputRef = this.handleInputRef.bind(this);
     this.getFieldError = this.getFieldError.bind(this);
-    this.getInputComponent = this.getInputComponent.bind(this);
     this.getModel = this.getModel.bind(this);
+    this.visibleFieldsSelector = visibleFieldsSelectorCreator();
+    this.state = {fields: {}};
   }
 
   getModel() {
-    return this.context.state.fields ? this.context.state : {fields: {}};
+    return this.state;
   }
 
   componentDidMount() {
-    const visibleFields = visibleFieldsSelector(this.getModel(), this.props);
+    const visibleFields = this.visibleFieldsSelector(
+      this.getModel(),
+      this.props
+    );
     if (visibleFields && visibleFields.length > 0) {
       const firstField = visibleFields[0];
       const firstControl = this.controls[firstField.id];
@@ -101,8 +148,12 @@ class ElmForm extends React.PureComponent {
     }
     this.context.assocReducer(
       [...this.context.scope, '.'],
-      createUpdaterCreator(this.props.fieldTypes)(this.props.schema)
+      createUpdater(this.props.fieldTypes, this.props.schema)
     );
+    /*this.context.subscribe(() => {
+      const state = pathOr({}, this.context.scope, this.context.getState());
+      this.setState(state);
+    });*/
   }
 
   componentWillUnmount() {
@@ -111,7 +162,7 @@ class ElmForm extends React.PureComponent {
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.asyncErrors !== this.props.asyncErrors) {
-      const fields = visibleFieldsSelector(this.getModel(), this.props);
+      const fields = this.visibleFieldsSelector(this.getModel(), this.props);
       const fieldWithAsyncError = find(
         field => nextProps.asyncErrors[field.id],
         fields
@@ -228,9 +279,6 @@ class ElmForm extends React.PureComponent {
   handleInputRef(ref, fieldId) {
     this.controls[fieldId] = ref;
   }
-  getInputComponent(type) {
-    return fieldTypesSelector(null, this.props)[type];
-  }
   render() {
     const {
       legend,
@@ -243,30 +291,10 @@ class ElmForm extends React.PureComponent {
 
     const model = this.getModel();
 
-    const fields = mapWithKey(
-      (f, idx) =>
-        createElement(formGroupTemplate, {
-          key: idx,
-          label: f.label,
-          input: createElement(this.getInputComponent(f.type || 'text'), {
-            id: (name || '') + (name ? '-' : '') + f.id,
-            label: f.label,
-            value:
-              model.fields[
-                f.debounce && has(`${f.id}_raw`, model.fields)
-                  ? `${f.id}_raw`
-                  : f.id
-              ],
-            onChange: this.handleOnChange,
-            type: f.type || 'text',
-            error: this.getFieldError(f),
-            runValidation: model.submitDirty && model.dirty,
-            scope: `sub.${f.id}`,
-            ...(f.props ? f.props(this.props.args, model.fields) : {}),
-          }),
-        }),
-      visibleFieldsSelector(model, this.props)
-    );
+    const fields = this.visibleFieldsSelector(model, {
+      ...this.props,
+      handleOnChange: this.handleOnChange,
+    });
 
     const genericError = asyncErrors &&
       asyncErrors.__general && <GenericError content={asyncErrors.__general} />;
@@ -286,15 +314,228 @@ class ElmForm extends React.PureComponent {
   }
 }
 
+const formActions = {
+  setField,
+  setSubmitDirty,
+  submit,
+};
+
+class EnhancedInput extends PureComponent {
+  constructor() {
+    super();
+    this.onChange = this.onChange.bind(this);
+  }
+
+  onChange(event) {
+    const value = !event.target
+      ? event
+      : this.props.type === 'checkbox'
+        ? event.target.checked
+        : event.target.value;
+    this.props.onChange(value, this.props.id);
+  }
+
+  render() {
+    const {component, id, ...rest} = this.props;
+    return createElement(component, {
+      id,
+      ...rest,
+      onChange: this.onChange,
+    });
+  }
+}
+
+const Field = ({
+  id,
+  formGroupTemplate,
+  formName,
+  label,
+  onChange,
+  component,
+  fieldSchema,
+}) => {
+  const context = useContext(KLogicContext);
+
+  const [state, setState] = useState(
+    pathOr({}, [...context.scope, 'fields', id], context.getState())
+  );
+
+  const stateRef = useRef(state);
+
+  useLayoutEffect(() => {
+    return context.subscribe(() => {
+      const newState = pathOr(
+        {},
+        [...context.scope, 'fields', id],
+        context.getState()
+      );
+      if (newState !== stateRef.current) {
+        setState(newState);
+        stateRef.current = newState;
+      }
+    });
+  }, []);
+
+  const field = useMemo(
+    () => {
+      const model = pathOr(
+        {fields: {}, debouncing: {}},
+        context.scope,
+        context.getState()
+      );
+      const error = validateField(fieldSchema, model);
+      return createElement(formGroupTemplate, {
+        label,
+        input: createElement(EnhancedInput, {
+          component,
+          id: (formName || '') + (formName ? '-' : '') + id,
+          label,
+          /*value:
+            fields[
+              f.debounce && has(`${f.id}_raw`, fields) ? `${f.id}_raw` : f.id
+            ],
+            */
+          value: state,
+          onChange: onChange,
+          //type: f.type || 'text',
+          error,
+          //runValidation: model.submitDirty && model.dirty,
+          scope: `sub.${id}`,
+          //...(f.props ? f.props(this.props.args, fields) : {}),
+        }),
+        error,
+      });
+    },
+    [state]
+  );
+
+  return field;
+};
+
+const Form2 = withScope(
+  ({
+    name,
+    formTemplate,
+    formGroupTemplate,
+    buttonsTemplate,
+    onSubmit,
+    fieldTypes,
+    schema,
+    resetOnSubmit,
+  }) => {
+    const context = useContext(KLogicContext);
+    const fields0 = useMemo(() => {}, []);
+    const reducer = useMemo(() => createUpdater(fieldTypes, schema), []);
+    const {setField, submit, setSubmitDirty} = useFrozenReducer(
+      reducer,
+      formActions
+    );
+
+    const defaultSubmitHandler = useCallback(e => {
+      console.log('defaultSubmitHandler');
+      const asyncErrors = {};
+      const model = pathOr({}, context.scope, context.getState());
+      const formErrors = validateForm(schema, model, asyncErrors || {});
+      const syncErrors = filter(e => e.error, formErrors);
+      console.log(formErrors);
+
+      syncErrors.length === 0
+        ? submit({
+            fields: model.fields,
+            resetOnSubmit: boolWithDefault(true, resetOnSubmit),
+          })
+        : setSubmitDirty();
+    }, []);
+
+    const handleSubmit = useCallback(
+      e => {
+        e.preventDefault();
+        return onSubmit
+          ? onSubmit(defaultSubmitHandler, fields0)
+          : defaultSubmitHandler();
+      },
+      [defaultSubmitHandler, onSubmit, fields0]
+    );
+
+    const setFieldValue = useCallback((value, id) => {
+      //const model = this.getModel();
+      //const fields = indexedSchemaSelector(model, this.props);
+      /*const field = fields[id];
+      if (field.debounce) {
+        setField(id, value, 'start');
+        clearTimeout(this.timeouts[id]);
+        this.timeouts[id] = setTimeout(
+          () => setField(id, value, 'end'),
+          field.debounce
+        );
+      } else {*/
+      setField(id, value);
+      //}
+    });
+
+    const handleOnChange = useCallback(
+      (value, fieldId) => setFieldValue(value, fieldId),
+      []
+    );
+
+    const buttons = useMemo(
+      () =>
+        console.log('buttons rendered') ||
+        createElement(buttonsTemplate, {
+          submit: handleSubmit,
+          onReset: handleSubmit,
+        }),
+      [buttonsTemplate, handleSubmit]
+    );
+    const genericError = <div>genericError</div>;
+    const legend = <div>legend</div>;
+
+    const renderedFields = useMemo(
+      () =>
+        mapWithKey(
+          (f, idx) => (
+            <Field
+              key={idx}
+              id={f.id}
+              label={f.label}
+              formGroupTemplate={formGroupTemplate}
+              formName={name}
+              onChange={handleOnChange}
+              fieldSchema={f}
+              component={fieldTypes[f.type || 'text']}
+            />
+          ),
+          //filter(f => !f.visible || f.visible(fields), schema)
+          schema
+        ),
+      [schema]
+    );
+
+    const renderedForm = useMemo(
+      () =>
+        createElement(formTemplate, {
+          fields: renderedFields,
+          buttons,
+          genericError,
+          legend,
+          submit: handleSubmit,
+        }),
+      [buttons, renderedFields]
+    );
+
+    return renderedForm;
+  }
+);
+
 const FormTemplate = ({fields, buttons}) => (
   <div>
     {fields} {buttons}
   </div>
 );
 
-const FormGroupTemplate = ({label, input}) => (
+const FormGroupTemplate = ({label, input, error}) => (
   <div>
-    {label} {input}
+    {label} {input} {error}
   </div>
 );
 
@@ -323,6 +564,13 @@ const KForm = compose(
   })
 )(ElmForm);
 
+Form2.defaultProps = {
+  formTemplate: FormTemplate,
+  formGroupTemplate: FormGroupTemplate,
+  buttonsTemplate: ButtonsTemplate,
+  fieldTypes: fieldTypes,
+};
+
 export default KForm;
 
-export {validateForm, validateField};
+export {validateForm, validateField, Form2};

@@ -26,10 +26,14 @@ const counterActions = {
   inc: () => ({type: 'INC'}),
 };
 
-const Expand = withScope(() => {
+const Expand = withScope(({color}) => {
   const {counter, inc} = useKReducer(counterReducer, counterActions);
   return (
-    <button onClick={inc} type="button">
+    <button
+      style={{backgroundColor: color || 'white'}}
+      onClick={inc}
+      type="button"
+    >
       {`Hopla ${counter}`}
     </button>
   );
@@ -61,6 +65,7 @@ const schema1 = [
     id: 'job2',
     title: 'Job 2',
     type: 'expand',
+    props: () => ({color: 'red'}),
   },
 ];
 

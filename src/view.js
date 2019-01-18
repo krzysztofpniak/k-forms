@@ -355,6 +355,7 @@ const Field = ({
   onChange,
   component,
   fieldSchema,
+  props,
 }) => {
   const context = useContext(KLogicContext);
 
@@ -404,6 +405,7 @@ const Field = ({
           //runValidation: model.submitDirty && model.dirty,
           scope: `sub.${id}`,
           //...(f.props ? f.props(this.props.args, fields) : {}),
+          ...(props || {}),
         }),
         error,
       });
@@ -413,6 +415,8 @@ const Field = ({
 
   return field;
 };
+
+const emptyObject = {};
 
 const Form = withScope(
   ({
@@ -427,6 +431,7 @@ const Form = withScope(
     cancelText,
     submitText,
     additionalButtons,
+    args,
   }) => {
     const context = useContext(KLogicContext);
     const fields0 = useMemo(() => {}, []);
@@ -510,6 +515,7 @@ const Form = withScope(
             onChange={handleOnChange}
             fieldSchema={f}
             component={fieldTypes[f.type || 'text']}
+            props={f.props ? f.props(args) : emptyObject}
           />
         ),
       [formGroupTemplate, fieldTypes, name]

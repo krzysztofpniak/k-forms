@@ -573,11 +573,13 @@ const KForm = compose(
   })
 )(ElmForm);
 
-Form2.defaultProps = {
+Form.defaultProps = {
   formTemplate: FormTemplate,
   formGroupTemplate: FormGroupTemplate,
   buttonsTemplate: ButtonsTemplate,
   fieldTypes: fieldTypes,
+  cancelText: 'Cancel',
+  submitText: 'Submit',
 };
 
 export default KForm;

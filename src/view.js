@@ -23,6 +23,7 @@ import {
   reduceBy,
   propOr,
   pathOr,
+  keys,
 } from 'ramda';
 import withDebug from './withDebug';
 import {setField, submit, reset, setSubmitDirty} from './actions';
@@ -383,6 +384,9 @@ const Field = ({
     });
   }, []);
 
+  const propsKeys = useMemo(() => keys(props), []);
+  const propsValues = map(k => props[k], propsKeys);
+
   const field = useMemo(
     () => {
       const model = pathOr(
@@ -414,7 +418,7 @@ const Field = ({
         error,
       });
     },
-    [state]
+    [state, ...propsValues]
   );
 
   return field;
@@ -505,6 +509,9 @@ const Form = withScope(
     const genericError = <div>genericError</div>;
     const legend = <div>legend</div>;
 
+    const argsKeys = useMemo(() => keys(args), []);
+    const argsValues = map(k => args[k], argsKeys);
+
     const groupFields = useCallback(
       (acc, f) =>
         acc.concat(
@@ -520,12 +527,12 @@ const Form = withScope(
             props={f.props ? f.props(args) : emptyObject}
           />
         ),
-      [formGroupTemplate, fieldTypes, name]
+      [formGroupTemplate, fieldTypes, name, ...argsValues]
     );
 
     const renderedFields = useMemo(
       () => reduceBy(groupFields, [], propOr('default', 'group'), schema),
-      [schema]
+      [schema, ...argsValues]
     );
 
     const renderedForm = useMemo(

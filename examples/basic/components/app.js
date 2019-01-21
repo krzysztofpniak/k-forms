@@ -1,10 +1,9 @@
 import React from 'react';
-import {KForm, Form} from '../../../src/main';
+import {Form} from '../../../src/main';
 import {required} from '../../../src/validators';
 import {createReducer, actionType2} from 'k-reducer';
 import {Scope, withScope, useKReducer} from 'k-logic';
-import {compose, over, lensProp, add} from 'ramda';
-import {withHandlers, setStatic} from 'recompose';
+import {over, lensProp, add} from 'ramda';
 
 const schema2 = [
   {
@@ -65,7 +64,7 @@ const schema1 = [
     id: 'job2',
     title: 'Job 2',
     type: 'expand',
-    props: () => ({color: 'red'}),
+    props: ({color}) => ({color}),
   },
 ];
 
@@ -91,20 +90,45 @@ const Button = ({submit, onReset}) => (
   </div>
 );
 
-const App = () => (
-  <Scope scope="app">
-    <div>pierwszy form</div>
-    <Form scope="form0" schema={schema1} fieldTypes={fieldTypes} />
-    <div>drugi form</div>
-    <Form
-      scope="form2"
-      schema={schema2}
-      fieldTypes={fieldTypes}
-      formGroupTemplate={Row}
-      formTemplate={FormTemplate}
-      buttonsTemplate={Button}
-    />
-  </Scope>
-);
+const colors = ['red', 'green', 'blue'];
+
+const appActions = {
+  nextColor: () => ({type: 'NextColor'}),
+};
+
+const appReducer = createReducer({colorIndex: 0}, [
+  actionType2(appActions.nextColor, s => ({
+    ...s,
+    colorIndex: (s.colorIndex + 1) % colors.length,
+  })),
+]);
+
+const App = () => {
+  const {colorIndex, nextColor} = useKReducer(appReducer, appActions);
+  return (
+    <Scope scope="app">
+      <button type="button" onClick={nextColor}>
+        next color
+      </button>
+      <div>pierwszy form</div>
+      <Form
+        scope="form0"
+        schema={schema1}
+        fieldTypes={fieldTypes}
+        args={{color: colors[colorIndex]}}
+      />
+      <div>drugi form</div>
+      <Form
+        scope="form2"
+        schema={schema2}
+        fieldTypes={fieldTypes}
+        formGroupTemplate={Row}
+        formTemplate={FormTemplate}
+        buttonsTemplate={Button}
+        args={{color: colors[colorIndex]}}
+      />
+    </Scope>
+  );
+};
 
 export default App;

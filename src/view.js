@@ -446,12 +446,10 @@ const Form = withScope(
     );
 
     const defaultSubmitHandler = useCallback(e => {
-      console.log('defaultSubmitHandler');
       const asyncErrors = {};
       const model = pathOr({}, context.scope, context.getState());
       const formErrors = validateForm(schema, model, asyncErrors || {});
       const syncErrors = filter(e => e.error, formErrors);
-      console.log(formErrors);
 
       syncErrors.length === 0
         ? submit({

@@ -542,7 +542,7 @@ const Form = withScope(
           buttons,
           genericError,
           legend,
-          submit: handleSubmit,
+          onSubmit: handleSubmit,
         }),
       [buttons, renderedFields]
     );

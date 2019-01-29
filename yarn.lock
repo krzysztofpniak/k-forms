@@ -3786,10 +3786,10 @@ just-curry-it@^3.1.0:
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/just-curry-it/-/just-curry-it-3.1.0.tgz#ab59daed308a58b847ada166edd0a2d40766fbc5"
 
-k-logic@^0.6.17:
-  version "0.6.17"
-  resolved "https://registry.yarnpkg.com/k-logic/-/k-logic-0.6.17.tgz#e4844c2617e4ab7cd96b337e7d4c364e4a6a271d"
-  integrity sha512-WW7Mobiv4IG9wxkA/iPdbZ9k1aOh6fAfqhvecg6C/vGyD6iM9UuvjNOGmd7eursHJc6k244qSGh52ic0shnJGg==
+k-logic@^0.6.21:
+  version "0.6.21"
+  resolved "https://registry.yarnpkg.com/k-logic/-/k-logic-0.6.21.tgz#479d3123dd678c064dc7788c921b18782109d966"
+  integrity sha512-y42gPA5hUq/L37ENAHMTiWZXk2mHlKppKRGKv9ft+NcVK2Zgrlb7vExGQW1MXahNh6zUX+C6JV1rAN1tmfloPQ==
 
 k-reducer@^0.2.11:
   version "0.2.11"

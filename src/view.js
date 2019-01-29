@@ -433,6 +433,7 @@ const Form = withScope(
     formGroupTemplate,
     buttonsTemplate,
     onSubmit,
+    onReset,
     fieldTypes,
     schema,
     resetOnSubmit,
@@ -463,6 +464,8 @@ const Form = withScope(
         : setSubmitDirty();
     }, []);
 
+    const defaultResetHandler = useCallback(() => {}, []);
+
     const handleSubmit = useCallback(
       e => {
         e.preventDefault();
@@ -472,6 +475,11 @@ const Form = withScope(
       },
       [defaultSubmitHandler, onSubmit, fields0]
     );
+
+    const handleReset = useCallback(e => {
+      e.preventDefault();
+      return onReset ? onReset(defaultResetHandler) : defaultResetHandler();
+    });
 
     const setFieldValue = useCallback((value, id) => {
       //const model = this.getModel();
@@ -498,7 +506,7 @@ const Form = withScope(
       () =>
         createElement(buttonsTemplate, {
           onSubmit: handleSubmit,
-          onReset: handleSubmit,
+          onReset: handleReset,
           formName: name,
           cancelText,
           submitText,

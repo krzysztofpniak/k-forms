@@ -8,6 +8,7 @@ import React, {
   useState,
   useContext,
   PureComponent,
+  memo,
 } from 'react';
 import {
   filter,
@@ -24,6 +25,7 @@ import {
   propOr,
   pathOr,
   keys,
+  flip,
 } from 'ramda';
 import withDebug from './withDebug';
 import {setField, submit, reset, setSubmitDirty} from './actions';
@@ -41,8 +43,15 @@ import {
   withScope,
   useKReducer,
   bindActionCreators,
+  shallowEqual,
 } from 'k-logic';
 const mapWithKey = addIndex(map);
+
+const mergeProps = propName => props => ({
+  ...props,
+  ...props[propName],
+  [propName]: null,
+});
 
 const validateField = (fieldSchema, model) =>
   Array.isArray(fieldSchema.validate)
@@ -348,85 +357,94 @@ class EnhancedInput extends PureComponent {
   }
 }
 
-const Field = ({
-  id,
-  formGroupTemplate,
-  formName,
-  title,
-  onChange,
-  component,
-  fieldSchema,
-  props,
-}) => {
-  const context = useContext(KLogicContext);
+const Field = memo(
+  ({
+    id,
+    formGroupTemplate,
+    formName,
+    title,
+    onChange,
+    component,
+    fieldSchema,
+    props,
+  }) => {
+    const context = useContext(KLogicContext);
 
-  const [state, setState] = useState(
-    pathOr(
-      fieldSchema.defaultValue || '',
-      [...context.scope, 'fields', id],
-      context.getState()
-    )
-  );
-
-  const stateRef = useRef(state);
-
-  useLayoutEffect(() => {
-    return context.subscribe(() => {
-      const newState = pathOr(
-        {},
+    const [state, setState] = useState(
+      pathOr(
+        fieldSchema.defaultValue || '',
         [...context.scope, 'fields', id],
         context.getState()
-      );
-      if (newState !== stateRef.current) {
-        setState(newState);
-        stateRef.current = newState;
-      }
-    });
-  }, []);
+      )
+    );
 
-  const propsKeys = useMemo(() => keys(props), []);
-  const propsValues = map(k => props[k], propsKeys);
+    const stateRef = useRef(state);
 
-  const field = useMemo(
-    () => {
-      const model = pathOr(
-        {fields: {}, debouncing: {}},
-        context.scope,
-        context.getState()
-      );
-      const error = validateField(fieldSchema, model);
-      return createElement(formGroupTemplate, {
-        title,
-        input: createElement(EnhancedInput, {
-          component,
-          id: (formName || '') + (formName ? '-' : '') + id,
+    useLayoutEffect(() => {
+      return context.subscribe(() => {
+        const newState = pathOr(
+          {},
+          [...context.scope, 'fields', id],
+          context.getState()
+        );
+        if (newState !== stateRef.current) {
+          setState(newState);
+          stateRef.current = newState;
+        }
+      });
+    }, []);
+
+    const propsKeys = useMemo(() => keys(props), []);
+    const propsValues = map(k => props[k], propsKeys);
+
+    const field = useMemo(
+      () => {
+        const model = pathOr(
+          {fields: {}, debouncing: {}},
+          context.scope,
+          context.getState()
+        );
+        const error = validateField(fieldSchema, model);
+        return createElement(formGroupTemplate, {
           title,
-          /*value:
+          input: createElement(EnhancedInput, {
+            component,
+            id: (formName || '') + (formName ? '-' : '') + id,
+            title,
+            /*value:
             fields[
               f.debounce && has(`${f.id}_raw`, fields) ? `${f.id}_raw` : f.id
             ],
             */
-          value: state,
-          onChange: onChange,
-          //type: f.type || 'text',
+            value: state,
+            onChange: onChange,
+            //type: f.type || 'text',
+            error,
+            //runValidation: model.submitDirty && model.dirty,
+            scope: `sub.${id}`,
+            //...(f.props ? f.props(this.props.args, fields) : {}),
+            ...(props || {}),
+          }),
           error,
-          //runValidation: model.submitDirty && model.dirty,
-          scope: `sub.${id}`,
-          //...(f.props ? f.props(this.props.args, fields) : {}),
-          ...(props || {}),
-        }),
-        error,
-      });
-    },
-    [state, ...propsValues]
-  );
+        });
+      },
+      [state, ...propsValues]
+    );
 
-  return field;
-};
+    return field;
+  },
+  (props, nextProps) =>
+    shallowEqual(mergeProps('props')(props), mergeProps('props')(nextProps))
+);
 
 const emptyObject = {};
 
-const Form = withScope(
+const Form = compose(
+  flip(memo)((props, nextProps) =>
+    shallowEqual(mergeProps('args')(props), mergeProps('args')(nextProps))
+  ),
+  withScope
+)(
   ({
     name,
     formTemplate,

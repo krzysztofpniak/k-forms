@@ -447,6 +447,7 @@ const Form = compose(
 )(
   ({
     name,
+    legend,
     formTemplate,
     formGroupTemplate,
     buttonsTemplate,
@@ -533,7 +534,6 @@ const Form = compose(
       [buttonsTemplate, handleSubmit, name, cancelText, submitText]
     );
     const genericError = <div>genericError</div>;
-    const legend = <div>legend</div>;
 
     const argsKeys = useMemo(() => keys(args), []);
     const argsValues = map(k => args[k], argsKeys);

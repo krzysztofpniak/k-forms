@@ -108,6 +108,11 @@ const useFrozenReducer = (reducer, actions) => {
     };
   }, []);
 
+  const getFields = useCallback(
+    () => pathOr({}, [...context.scope, 'fields'], context.getState()),
+    []
+  );
+
   //TODO: performance
   const initialState = reducer(undefined, {type: '@@INIT'});
 
@@ -115,6 +120,7 @@ const useFrozenReducer = (reducer, actions) => {
     () => ({
       ...bindActionCreators(actions, context.dispatch),
       ...initialState,
+      getFields,
     }),
     []
   );
@@ -462,9 +468,8 @@ const Form = compose(
     args,
   }) => {
     const context = useContext(KLogicContext);
-    const fields0 = useMemo(() => {}, []);
     const reducer = useMemo(() => createUpdater(fieldTypes, schema), []);
-    const {setField, submit, setSubmitDirty} = useFrozenReducer(
+    const {setField, submit, setSubmitDirty, getFields} = useFrozenReducer(
       reducer,
       formActions
     );
@@ -489,10 +494,10 @@ const Form = compose(
       e => {
         e.preventDefault();
         return onSubmit
-          ? onSubmit(defaultSubmitHandler, fields0)
+          ? onSubmit(defaultSubmitHandler, getFields())
           : defaultSubmitHandler();
       },
-      [defaultSubmitHandler, onSubmit, fields0]
+      [defaultSubmitHandler, onSubmit]
     );
 
     const handleReset = useCallback(e => {

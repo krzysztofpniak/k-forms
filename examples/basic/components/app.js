@@ -1,9 +1,9 @@
-import React from 'react';
+import React, {memo} from 'react';
 import {Form} from '../../../src/main';
 import {required} from '../../../src/validators';
 import {createReducer, actionType2} from 'k-reducer';
 import {Scope, withScope, useKReducer} from 'k-logic';
-import {over, lensProp, add} from 'ramda';
+import {over, lensProp, add, compose} from 'ramda';
 
 const schema2 = [
   {
@@ -25,16 +25,22 @@ const counterActions = {
   inc: () => ({type: 'INC'}),
 };
 
-const Expand = withScope(({color}) => {
+const Expand = compose(
+  memo,
+  withScope
+)(({color}) => {
   const {counter, inc} = useKReducer(counterReducer, counterActions);
   return (
-    <button
-      style={{backgroundColor: color || 'white'}}
-      onClick={inc}
-      type="button"
-    >
-      {`Hopla ${counter}`}
-    </button>
+    <div>
+      <div>first</div>
+      <button
+        style={{backgroundColor: color || 'white'}}
+        onClick={inc}
+        type="button"
+      >
+        {`Hopla ${counter}`}
+      </button>
+    </div>
   );
 });
 
@@ -103,13 +109,18 @@ const appReducer = createReducer({colorIndex: 0}, [
   })),
 ]);
 
+const SimpleButton = memo(({text, onClick}) => (
+  <button type="button" onClick={onClick}>
+    {text}
+  </button>
+));
+
 const App = () => {
   const {colorIndex, nextColor} = useKReducer(appReducer, appActions);
+
   return (
     <Scope scope="app">
-      <button type="button" onClick={nextColor}>
-        next color
-      </button>
+      <SimpleButton text="Next Color" onClick={nextColor} />
       <div>pierwszy form</div>
       <Form
         scope="form0"

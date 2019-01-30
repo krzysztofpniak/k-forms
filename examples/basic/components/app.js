@@ -1,4 +1,4 @@
-import React, {memo} from 'react';
+import React, {memo, useCallback} from 'react';
 import {Form} from '../../../src/main';
 import {required} from '../../../src/validators';
 import {createReducer, actionType2} from 'k-reducer';
@@ -117,6 +117,10 @@ const SimpleButton = memo(({text, onClick}) => (
 
 const App = () => {
   const {colorIndex, nextColor} = useKReducer(appReducer, appActions);
+  const handleSubmit = useCallback((defaultSubmitHandler, fields) => {
+    defaultSubmitHandler();
+    console.log(fields);
+  }, []);
 
   return (
     <Scope scope="app">
@@ -127,6 +131,7 @@ const App = () => {
         schema={schema1}
         fieldTypes={fieldTypes}
         args={{color: colors[colorIndex]}}
+        onSubmit={handleSubmit}
       />
       <div>drugi form</div>
       <Form

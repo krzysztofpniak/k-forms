@@ -34,7 +34,7 @@ const Expand = compose(
     <div>
       <div>first</div>
       <button
-        style={{backgroundColor: color || 'white'}}
+        style={{backgroundColor: color || 'white', color: 'white'}}
         onClick={inc}
         type="button"
       >

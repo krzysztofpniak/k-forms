@@ -82,8 +82,14 @@ const Row = ({input, title, error}) => (
   </div>
 );
 
-const FormTemplate = ({buttons, fields}) => (
-  <div>
+const FormTemplate = ({buttons, fields, args}) => (
+  <div
+    style={{
+      border: `2px solid ${args.color}`,
+      borderRadius: '5px',
+      padding: '10px',
+    }}
+  >
     {buttons}
     {fields.default}
     {buttons}

@@ -574,8 +574,9 @@ const Form = compose(
           genericError,
           legend,
           onSubmit: handleSubmit,
+          args,
         }),
-      [buttons, renderedFields]
+      [buttons, renderedFields, ...argsValues]
     );
 
     return renderedForm;

@@ -75,7 +75,7 @@ const schema1 = [
 ];
 
 const Row = ({input, title, error}) => (
-  <div style={{border: 'solid red 1px'}}>
+  <div style={{margin: '10px 0'}}>
     <div>{title}</div>
     <div>{input}</div>
     <div>{error}</div>

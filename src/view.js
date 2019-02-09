@@ -528,12 +528,15 @@ const Form = compose(
       const fieldSchema = indexedSchema[fieldId];
 
       if (fieldSchema.onChange) {
-        const currentValue = path(
-          [...context.scope, 'fields', fieldId],
-          context.getState()
-        );
+        const appState = context.getState();
+        const fieldsValues = pathOr({}, [...context.scope, 'fields'], appState);
+        const currentValue = prop(fieldId, fieldsValues);
         const overriddenValue =
-          fieldSchema.onChange(value, currentValue, argsRef.current) || value;
+          fieldSchema.onChange({
+            value,
+            args: argsRef.current,
+            fields: fieldsValues,
+          }) || value;
         if (overriddenValue !== currentValue) {
           setFieldValue(overriddenValue, fieldId);
         }

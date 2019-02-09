@@ -596,16 +596,6 @@ const fieldTypes = {
   text: ({value, onChange}) => <input value={value} onChange={onChange} />,
 };
 
-const KForm = compose(
-  withScope,
-  defaultProps({
-    formTemplate: FormTemplate,
-    formGroupTemplate: FormGroupTemplate,
-    buttonsTemplate: ButtonsTemplate,
-    fieldTypes: fieldTypes,
-  })
-)(ElmForm);
-
 Form.defaultProps = {
   formTemplate: FormTemplate,
   formGroupTemplate: FormGroupTemplate,
@@ -614,7 +604,5 @@ Form.defaultProps = {
   cancelText: 'Cancel',
   submitText: 'Submit',
 };
-
-export default KForm;
 
 export {validateForm, validateField, Form};

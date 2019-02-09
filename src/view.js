@@ -338,31 +338,6 @@ const formActions = {
   submit,
 };
 
-class EnhancedInput extends PureComponent {
-  constructor() {
-    super();
-    this.onChange = this.onChange.bind(this);
-  }
-
-  onChange(event) {
-    const value = !event.target
-      ? event
-      : this.props.type === 'checkbox'
-        ? event.target.checked
-        : event.target.value;
-    this.props.onChange(value, this.props.id);
-  }
-
-  render() {
-    const {component, id, ...rest} = this.props;
-    return createElement(component, {
-      id,
-      ...rest,
-      onChange: this.onChange,
-    });
-  }
-}
-
 const Field = memo(
   ({
     id,
@@ -403,6 +378,18 @@ const Field = memo(
     const propsKeys = useMemo(() => keys(props), []);
     const propsValues = map(k => props[k], propsKeys);
 
+    const handleOnChange = useCallback(
+      e => {
+        const value = !e.target ? e : e.target.value;
+        const parsedValue = fieldSchema.parse
+          ? fieldSchema.parse(value)
+          : value;
+
+        onChange(parsedValue, id);
+      },
+      [id, onChange]
+    );
+
     const field = useMemo(
       () => {
         const model = pathOr(
@@ -413,8 +400,7 @@ const Field = memo(
         const error = validateField(fieldSchema, model);
         return createElement(formGroupTemplate, {
           title,
-          input: createElement(EnhancedInput, {
-            component,
+          input: createElement(component, {
             id: (formName || '') + (formName ? '-' : '') + id,
             title,
             /*value:
@@ -423,7 +409,7 @@ const Field = memo(
             ],
             */
             value: state,
-            onChange: onChange,
+            onChange: handleOnChange,
             //type: f.type || 'text',
             error,
             //runValidation: model.submitDirty && model.dirty,

@@ -21,11 +21,14 @@ import {
   fromPairs,
   mergeRight,
   has,
+  path,
   reduceBy,
   propOr,
   pathOr,
   keys,
   flip,
+  indexBy,
+  prop,
 } from 'ramda';
 import withDebug from './withDebug';
 import {setField, submit, reset, setSubmitDirty} from './actions';
@@ -363,8 +366,7 @@ const Field = memo(
 
     useLayoutEffect(() => {
       return context.subscribe(() => {
-        const newState = pathOr(
-          {},
+        const newState = path(
           [...context.scope, 'fields', id],
           context.getState()
         );
@@ -377,6 +379,11 @@ const Field = memo(
 
     const propsKeys = useMemo(() => keys(props), []);
     const propsValues = map(k => props[k], propsKeys);
+
+    const formattedValue = useMemo(
+      () => (fieldSchema.format ? fieldSchema.format(state) : state),
+      [state]
+    );
 
     const handleOnChange = useCallback(
       e => {
@@ -408,7 +415,7 @@ const Field = memo(
               f.debounce && has(`${f.id}_raw`, fields) ? `${f.id}_raw` : f.id
             ],
             */
-            value: state,
+            value: formattedValue,
             onChange: handleOnChange,
             //type: f.type || 'text',
             error,
@@ -460,6 +467,16 @@ const Form = compose(
       formActions
     );
 
+    const argsRef = useRef(args);
+    useEffect(
+      () => {
+        argsRef.current = args;
+      },
+      [args]
+    );
+
+    const indexedSchema = useMemo(() => indexBy(prop('id'), schema), []);
+
     const defaultSubmitHandler = useCallback(e => {
       const asyncErrors = {};
       const model = pathOr({}, context.scope, context.getState());
@@ -507,10 +524,23 @@ const Form = compose(
       //}
     });
 
-    const handleOnChange = useCallback(
-      (value, fieldId) => setFieldValue(value, fieldId),
-      []
-    );
+    const handleOnChange = useCallback((value, fieldId) => {
+      const fieldSchema = indexedSchema[fieldId];
+
+      if (fieldSchema.onChange) {
+        const currentValue = path(
+          [...context.scope, 'fields', fieldId],
+          context.getState()
+        );
+        const overriddenValue =
+          fieldSchema.onChange(value, currentValue, argsRef.current) || value;
+        if (overriddenValue !== currentValue) {
+          setFieldValue(overriddenValue, fieldId);
+        }
+      } else {
+        setFieldValue(value, fieldId);
+      }
+    }, []);
 
     const buttons = useMemo(
       () =>

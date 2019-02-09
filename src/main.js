@@ -1,4 +1,4 @@
-import KForm, {Form} from './view';
+import {Form} from './view';
 import {
   createUpdater,
   getInitialModel,

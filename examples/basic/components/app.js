@@ -5,6 +5,11 @@ import {createReducer, actionType2} from 'k-reducer';
 import {Scope, withScope, useKReducer} from 'k-logic';
 import {over, lensProp, add, compose} from 'ramda';
 
+const parseIntNull = v => {
+  const parsed = parseInt(v, 10);
+  return isNaN(parsed) ? null : parsed;
+};
+
 const schema2 = [
   {
     id: 'name',
@@ -13,7 +18,10 @@ const schema2 = [
   {
     id: 'age',
     title: 'Age',
-    defaultValue: '10',
+    defaultValue: 10,
+    parse: parseIntNull,
+    format: v => (v ? v : ''),
+    onChange: console.log,
   },
 ];
 

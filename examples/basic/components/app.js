@@ -86,7 +86,7 @@ const Row = ({input, title, error}) => (
   <div style={{margin: '10px 0'}}>
     <div>{title}</div>
     <div>{input}</div>
-    <div>{error}</div>
+    <div style={{color: 'red'}}>{error}</div>
   </div>
 );
 

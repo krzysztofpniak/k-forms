@@ -25,6 +25,16 @@ const schema2 = [
     onChange: console.log,
     validate: v => (v < 18 ? 'At least 18 years' : null),
   },
+  {
+    id: 'color',
+    title: 'Favorite Color',
+    defaultValue: '',
+    validate: [
+      required,
+      (v, {args: {color}}) =>
+        v !== color ? `Color is different than ${color}` : '',
+    ],
+  },
 ];
 
 const counterReducer = createReducer({counter: 0}, [

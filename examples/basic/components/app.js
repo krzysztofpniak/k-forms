@@ -53,7 +53,9 @@ const Expand = compose(
 });
 
 const fieldTypes = {
-  text: ({value, onChange}) => <input value={value} onChange={onChange} />,
+  text: ({value, onChange, inputRef}) => (
+    <input value={value} onChange={onChange} ref={inputRef} />
+  ),
   expand: Expand,
 };
 

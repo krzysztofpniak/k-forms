@@ -131,8 +131,12 @@ const appReducer = createReducer({colorIndex: 0}, [
   })),
 ]);
 
-const SimpleButton = memo(({text, onClick}) => (
-  <button type="button" onClick={onClick}>
+const SimpleButton = memo(({text, onClick, color}) => (
+  <button
+    type="button"
+    onClick={onClick}
+    style={{backgroundColor: color, color: 'white'}}
+  >
     {text}
   </button>
 ));

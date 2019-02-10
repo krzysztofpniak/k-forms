@@ -462,6 +462,7 @@ const Form = compose(
     submitText,
     additionalButtons,
     args,
+    autoFocus,
   }) => {
     const context = useContext(KLogicContext);
     const reducer = useMemo(() => createUpdater(fieldTypes, schema), []);
@@ -522,6 +523,19 @@ const Form = compose(
           }
         }
       });
+    }, []);
+
+    useEffect(() => {
+      if (autoFocus) {
+        const firstField = find(f => inputRefs.current[f.id], schema);
+        if (
+          firstField &&
+          inputRefs.current[firstField.id] &&
+          inputRefs.current[firstField.id].focus
+        ) {
+          inputRefs.current[firstField.id].focus();
+        }
+      }
     }, []);
 
     const defaultSubmitHandler = useCallback(e => {

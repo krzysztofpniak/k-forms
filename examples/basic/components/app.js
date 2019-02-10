@@ -35,6 +35,23 @@ const schema2 = [
         v !== color ? `Color is different than ${color}` : '',
     ],
   },
+  {
+    id: 'password',
+    title: 'Password',
+    type: 'password',
+    defaultValue: '',
+    validate: required,
+  },
+  {
+    id: 'passwordConfirm',
+    title: 'Password Confirm',
+    type: 'password',
+    defaultValue: '',
+    validate: [
+      (v, {fields: {password}}) =>
+        v !== password ? `Passwords must match` : '',
+    ],
+  },
 ];
 
 const counterReducer = createReducer({counter: 0}, [

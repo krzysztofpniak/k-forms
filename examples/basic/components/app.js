@@ -179,6 +179,7 @@ const App = () => {
         formTemplate={FormTemplate}
         buttonsTemplate={Button}
         args={{color: colors[colorIndex]}}
+        onSubmit={handleSubmit}
       />
     </Scope>
   );

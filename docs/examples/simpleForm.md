@@ -1,7 +1,10 @@
 # Simple Form
 
 <iframe src="https://zlmzlpwz6l.codesandbox.io/" height="200px"></iframe>
-<iframe src="https://codesandbox.io/embed/new?codemirror=1" style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;" sandbox="allow-modals allow-forms allow-popups allow-scripts allow-same-origin"></iframe>
+
+{% codesandbox %}
+https://codesandbox.io/embed/5k7kk5n73k?hidenavigation=1&view=preview
+{% endcodesandbox %}
 
 ```javascript
 import React from "react";

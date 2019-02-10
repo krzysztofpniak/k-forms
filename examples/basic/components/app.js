@@ -69,7 +69,7 @@ const schema1 = [
   {
     id: 'name',
     title: 'Name',
-    defaultValue: 'Jaśko',
+    defaultValue: 'John',
   },
   {
     id: 'surname',

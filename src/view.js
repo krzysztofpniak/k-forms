@@ -129,6 +129,7 @@ const formActions = {
 const Field = memo(
   ({
     id,
+    type,
     formGroupTemplate,
     formName,
     title,
@@ -206,7 +207,7 @@ const Field = memo(
             */
             value: formattedValue,
             onChange: handleOnChange,
-            //type: f.type || 'text',
+            type,
             error,
             //runValidation: model.submitDirty && model.dirty,
             scope: `sub.${id}`,
@@ -432,6 +433,7 @@ const Form = compose(
             formName={name}
             onChange={handleOnChange}
             fieldSchema={f}
+            type={f.type || 'text'}
             component={fieldTypes[f.type || 'text']}
             props={f.props ? f.props(args) : emptyObject}
           />

@@ -53,7 +53,6 @@ const mergeProps = propName => props => ({
   [propName]: null,
 });
 
-const validateForm = (schema, model, asyncErrors) =>
 const validateField = (fieldSchema, model, args) =>
   fieldSchema.validate
     ? reduceWhile(
@@ -70,11 +69,12 @@ const validateField = (fieldSchema, model, args) =>
       )
     : '';
 
+const validateForm = (schema, model, asyncErrors, args) =>
   compose(
     filter(f => f.error || f.asyncErrors),
     map(f => ({
       id: f.id,
-      error: validateField(f, model),
+      error: validateField(f, model, args),
       asyncError: asyncErrors[f.id] || '',
     })),
     filter(f => !f.visible || f.visible(model.fields))
@@ -251,6 +251,9 @@ const Form = compose(
     autoFocus,
   }) => {
     const context = useContext(KLogicContext);
+    const argsKeys = useMemo(() => keys(args), []);
+    const argsValues = map(k => args[k], argsKeys);
+
     const reducer = useMemo(() => createUpdater(fieldTypes, schema), []);
     const {setField, submit, setSubmitDirty, getFields} = useFrozenReducer(
       reducer,
@@ -266,12 +269,9 @@ const Form = compose(
     }, []);
 
     const argsRef = useRef(args);
-    useEffect(
-      () => {
-        argsRef.current = args;
-      },
-      [args]
-    );
+    useEffect(() => {
+      argsRef.current = args;
+    }, argsValues);
 
     const fieldsValuesRef = useRef({});
     const syncErrorsRef = useRef({});
@@ -289,27 +289,25 @@ const Form = compose(
         );
 
         return map(
-          fieldSchema => validateField(fieldSchema, model),
+          fieldSchema => validateField(fieldSchema, model, argsRef.current),
           indexedSchema
         );
       },
       [indexedSchema]
     );
 
-    useLayoutEffect(() => {
-      return context.subscribe(() => {
-        const fieldsValues = getFieldsValues();
-        if (!shallowEqual(fieldsValues, fieldsValuesRef.current)) {
-          fieldsValuesRef.current = fieldsValues;
-          const syncErrorsCandidate = getSyncErrors();
+    const validateFields = useCallback(() => {
+      const syncErrorsCandidate = getSyncErrors();
 
-          if (!shallowEqual(syncErrorsCandidate, syncErrorsRef.current)) {
-            syncErrorsRef.current = syncErrorsCandidate;
-            setSyncErrors(syncErrorsCandidate);
-          }
-        }
-      });
+      if (!shallowEqual(syncErrorsCandidate, syncErrorsRef.current)) {
+        syncErrorsRef.current = syncErrorsCandidate;
+        setSyncErrors(syncErrorsCandidate);
+      }
     }, []);
+
+    useEffect(() => {
+      validateFields();
+    }, argsValues);
 
     useEffect(() => {
       if (autoFocus) {
@@ -322,12 +320,25 @@ const Form = compose(
           inputRefs.current[firstField.id].focus();
         }
       }
+
+      return context.subscribe(() => {
+        const fieldsValues = getFieldsValues();
+        if (!shallowEqual(fieldsValues, fieldsValuesRef.current)) {
+          fieldsValuesRef.current = fieldsValues;
+          validateFields();
+        }
+      });
     }, []);
 
     const defaultSubmitHandler = useCallback(e => {
       const asyncErrors = {};
       const model = pathOr({}, context.scope, context.getState());
-      const formErrors = validateForm(schema, model, asyncErrors || {});
+      const formErrors = validateForm(
+        schema,
+        model,
+        asyncErrors || {},
+        argsRef.current
+      );
       const syncErrors = filter(e => e.error, formErrors);
 
       syncErrors.length === 0
@@ -343,6 +354,8 @@ const Form = compose(
           erroredInput.focus();
         }
       }
+
+      return formErrors;
     }, []);
 
     const defaultResetHandler = useCallback(() => {}, []);
@@ -416,9 +429,6 @@ const Form = compose(
       [buttonsTemplate, handleSubmit, name, cancelText, submitText]
     );
     const genericError = <div>genericError</div>;
-
-    const argsKeys = useMemo(() => keys(args), []);
-    const argsValues = map(k => args[k], argsKeys);
 
     const groupFields = useCallback(
       (acc, f) =>

@@ -28,6 +28,9 @@ import {
   flip,
   indexBy,
   prop,
+  unless,
+  of,
+  reduceWhile,
 } from 'ramda';
 import {setField, submit, reset, setSubmitDirty} from './actions';
 import {createUpdater} from './updater';
@@ -42,37 +45,31 @@ import {
 } from 'k-logic';
 const mapWithKey = addIndex(map);
 
+const ensureArray = unless(Array.isArray, of);
+
 const mergeProps = propName => props => ({
   ...props,
   ...props[propName],
   [propName]: null,
 });
 
-const validateField = (fieldSchema, model) =>
-  Array.isArray(fieldSchema.validate)
-    ? find(
-        identity,
-        map(
-          validationRule =>
-            validationRule(
-              model.fields[fieldSchema.id],
-              model.fields,
-              fieldSchema,
-              !!model.debouncing[fieldSchema.id]
-            ),
-          fieldSchema.validate
-        )
-      ) || ''
-    : typeof fieldSchema.validate === 'function'
-      ? fieldSchema.validate(
-          model.fields[fieldSchema.id],
-          model.fields,
-          fieldSchema,
-          !!model.debouncing[fieldSchema.id]
-        )
-      : '';
-
 const validateForm = (schema, model, asyncErrors) =>
+const validateField = (fieldSchema, model, args) =>
+  fieldSchema.validate
+    ? reduceWhile(
+        p => !p,
+        (p, c) =>
+          c(model.fields[fieldSchema.id], {
+            fields: model.fields,
+            args,
+            fieldSchema,
+            debouncing: !!model.debouncing[fieldSchema.id],
+          }),
+        '',
+        ensureArray(fieldSchema.validate)
+      )
+    : '';
+
   compose(
     filter(f => f.error || f.asyncErrors),
     map(f => ({

@@ -146,6 +146,7 @@ const App = () => {
       <div>First Form</div>
       <Form
         scope="form0"
+        autoFocus
         schema={schema1}
         fieldTypes={fieldTypes}
         args={{color: colors[colorIndex]}}

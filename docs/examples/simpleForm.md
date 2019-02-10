@@ -1,9 +1,5 @@
 # Simple Form
 
-<div>
-test
-</div>
+<iframe src="https://zlmzlpwz6l.codesandbox.io/" height="200px"></iframe>
+<iframe src="https://codesandbox.io/embed/new?codemirror=1" style="width:100%; height:500px; border:0; border-radius: 4px; overflow:hidden;" sandbox="allow-modals allow-forms allow-popups allow-scripts allow-same-origin"></iframe>
 
-<div class="intrinsic-container">
-  <iframe src="https://zlmzlpwz6l.codesandbox.io/"></iframe>
-</div>

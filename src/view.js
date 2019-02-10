@@ -421,7 +421,6 @@ const Field = memo(
             error,
             //runValidation: model.submitDirty && model.dirty,
             scope: `sub.${id}`,
-            //...(f.props ? f.props(this.props.args, fields) : {}),
             ...(props || {}),
           }),
           error,

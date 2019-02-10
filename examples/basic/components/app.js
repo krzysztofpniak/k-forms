@@ -14,6 +14,7 @@ const schema2 = [
   {
     id: 'name',
     title: 'Name',
+    validate: required,
   },
   {
     id: 'age',
@@ -22,6 +23,7 @@ const schema2 = [
     parse: parseIntNull,
     format: v => (v ? v : ''),
     onChange: console.log,
+    validate: v => (v < 18 ? 'At least 18 years' : null),
   },
 ];
 

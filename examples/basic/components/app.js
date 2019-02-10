@@ -90,18 +90,20 @@ const Row = ({input, title, error}) => (
   </div>
 );
 
-const FormTemplate = ({buttons, fields, args}) => (
-  <div
-    style={{
-      border: `2px solid ${args.color}`,
-      borderRadius: '5px',
-      padding: '10px',
-    }}
-  >
-    {buttons}
-    {fields.default}
-    {buttons}
-  </div>
+const FormTemplate = ({buttons, fields, args, onSubmit}) => (
+  <form onSubmit={onSubmit}>
+    <div
+      style={{
+        border: `2px solid ${args.color}`,
+        borderRadius: '5px',
+        padding: '10px',
+      }}
+    >
+      {buttons}
+      {fields.default}
+      {buttons}
+    </div>
+  </form>
 );
 
 const Button = ({submit, onReset}) => (

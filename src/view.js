@@ -7,7 +7,6 @@ import React, {
   useRef,
   useState,
   useContext,
-  PureComponent,
   memo,
 } from 'react';
 import {
@@ -30,10 +29,8 @@ import {
   indexBy,
   prop,
 } from 'ramda';
-import withDebug from './withDebug';
 import {setField, submit, reset, setSubmitDirty} from './actions';
 import {createUpdater} from './updater';
-import {withProps, defaultProps} from 'recompose';
 import {
   fetchOnEvery,
   handleAsyncs,

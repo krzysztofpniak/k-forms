@@ -350,6 +350,8 @@ const Field = memo(
     onChange,
     component,
     fieldSchema,
+    inputRef,
+    error,
     props,
   }) => {
     const context = useContext(KLogicContext);
@@ -397,19 +399,21 @@ const Field = memo(
       [id, onChange]
     );
 
+    const handleRefSet = useCallback(
+      ref => {
+        inputRef(ref, id);
+      },
+      [id, inputRef]
+    );
+
     const field = useMemo(
       () => {
-        const model = pathOr(
-          {fields: {}, debouncing: {}},
-          context.scope,
-          context.getState()
-        );
-        const error = validateField(fieldSchema, model);
         return createElement(formGroupTemplate, {
           title,
           input: createElement(component, {
             id: (formName || '') + (formName ? '-' : '') + id,
             title,
+            inputRef: handleRefSet,
             /*value:
             fields[
               f.debounce && has(`${f.id}_raw`, fields) ? `${f.id}_raw` : f.id
@@ -426,7 +430,7 @@ const Field = memo(
           error,
         });
       },
-      [state, ...propsValues]
+      [state, error, ...propsValues]
     );
 
     return field;
@@ -466,6 +470,14 @@ const Form = compose(
       formActions
     );
 
+    const [syncErrors, setSyncErrors] = useState({});
+
+    const getFieldsValues = useCallback(() => {
+      const appState = context.getState();
+      const fieldsValues = pathOr({}, [...context.scope, 'fields'], appState);
+      return fieldsValues;
+    }, []);
+
     const argsRef = useRef(args);
     useEffect(
       () => {
@@ -474,7 +486,43 @@ const Form = compose(
       [args]
     );
 
+    const fieldsValuesRef = useRef({});
+    const syncErrorsRef = useRef({});
+
+    const inputRefs = useRef({});
+
     const indexedSchema = useMemo(() => indexBy(prop('id'), schema), []);
+
+    const getSyncErrors = useCallback(
+      () => {
+        const model = pathOr(
+          {fields: {}, debouncing: {}},
+          context.scope,
+          context.getState()
+        );
+
+        return map(
+          fieldSchema => validateField(fieldSchema, model),
+          indexedSchema
+        );
+      },
+      [indexedSchema]
+    );
+
+    useLayoutEffect(() => {
+      return context.subscribe(() => {
+        const fieldsValues = getFieldsValues();
+        if (!shallowEqual(fieldsValues, fieldsValuesRef.current)) {
+          fieldsValuesRef.current = fieldsValues;
+          const syncErrorsCandidate = getSyncErrors();
+
+          if (!shallowEqual(syncErrorsCandidate, syncErrorsRef.current)) {
+            syncErrorsRef.current = syncErrorsCandidate;
+            setSyncErrors(syncErrorsCandidate);
+          }
+        }
+      });
+    }, []);
 
     const defaultSubmitHandler = useCallback(e => {
       const asyncErrors = {};
@@ -488,6 +536,13 @@ const Form = compose(
             resetOnSubmit: boolWithDefault(true, resetOnSubmit),
           })
         : setSubmitDirty();
+
+      if (formErrors.length > 0) {
+        const erroredInput = inputRefs.current[formErrors[0].id];
+        if (erroredInput) {
+          erroredInput.focus();
+        }
+      }
     }, []);
 
     const defaultResetHandler = useCallback(() => {}, []);
@@ -544,6 +599,10 @@ const Form = compose(
       }
     }, []);
 
+    const handleRefSet = useCallback((ref, fieldId) => {
+      inputRefs.current[fieldId] = ref;
+    }, []);
+
     const buttons = useMemo(
       () =>
         createElement(buttonsTemplate, {
@@ -567,6 +626,8 @@ const Form = compose(
           <Field
             key={(name || '') + (name ? '-' : '') + f.id}
             id={f.id}
+            inputRef={handleRefSet}
+            error={syncErrorsRef.current[f.id]}
             title={f.title}
             formGroupTemplate={formGroupTemplate}
             formName={name}
@@ -581,7 +642,7 @@ const Form = compose(
 
     const renderedFields = useMemo(
       () => reduceBy(groupFields, [], propOr('default', 'group'), schema),
-      [schema, ...argsValues]
+      [schema, syncErrors, ...argsValues]
     );
 
     const renderedForm = useMemo(

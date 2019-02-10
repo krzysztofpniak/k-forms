@@ -473,10 +473,10 @@ const Form = compose(
   }
 );
 
-const FormTemplate = ({fields, buttons}) => (
-  <div>
+const FormTemplate = ({fields, buttons, onSubmit}) => (
+  <form>
     {fields.default} {buttons}
-  </div>
+  </form>
 );
 
 const FormGroupTemplate = ({title, input, error}) => (

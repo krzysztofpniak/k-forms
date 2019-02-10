@@ -54,10 +54,14 @@ const Expand = compose(
   );
 });
 
+const Input = ({value, onChange, inputRef, type}) => (
+  <input value={value} onChange={onChange} ref={inputRef} type={type} />
+);
+
 const fieldTypes = {
-  text: ({value, onChange, inputRef}) => (
-    <input value={value} onChange={onChange} ref={inputRef} />
-  ),
+  text: Input,
+  password: Input,
+  email: Input,
   expand: Expand,
 };
 

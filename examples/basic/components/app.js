@@ -62,7 +62,7 @@ const counterActions = {
   inc: () => ({type: 'INC'}),
 };
 
-const Expand = compose(
+const Counter = compose(
   memo,
   withScope
 )(({color}) => {
@@ -89,7 +89,7 @@ const fieldTypes = {
   text: Input,
   password: Input,
   email: Input,
-  expand: Expand,
+  counter: Counter,
 };
 
 const schema1 = [
@@ -107,12 +107,13 @@ const schema1 = [
   {
     id: 'job',
     title: 'Job',
-    type: 'expand',
+    type: 'counter',
+    props: ({color}) => ({color}),
   },
   {
     id: 'job2',
     title: 'Job 2',
-    type: 'expand',
+    type: 'counter',
     props: ({color}) => ({color}),
   },
 ];

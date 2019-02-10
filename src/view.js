@@ -32,11 +32,6 @@ import {
 } from 'ramda';
 import withDebug from './withDebug';
 import {setField, submit, reset, setSubmitDirty} from './actions';
-import {
-  visibleFieldsSelectorCreator,
-  indexedSchemaSelector,
-  fieldTypesSelector,
-} from './selectors';
 import {createUpdater} from './updater';
 import {withProps, defaultProps} from 'recompose';
 import {

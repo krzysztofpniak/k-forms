@@ -7,11 +7,6 @@ import {
   setSubStates,
   setFieldsAndDefaults,
 } from './updater';
-import {
-  defaultValuesSelector,
-  fieldsSelector,
-  isDirtySelector,
-} from './selectors';
 import {addValueParam} from './helpers';
 
 export {
@@ -22,8 +17,5 @@ export {
   setFields,
   setFieldsAndDefaults,
   setSubStates,
-  isDirtySelector,
-  fieldsSelector,
-  defaultValuesSelector,
   addValueParam,
 };

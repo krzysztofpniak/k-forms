@@ -106,9 +106,11 @@ const FormTemplate = ({buttons, fields, args, onSubmit}) => (
   </form>
 );
 
-const Button = ({submit, onReset}) => (
+const Button = ({onSubmit, onReset}) => (
   <div>
-    <button onClick={submit}>Zatwierdź</button>
+    <button onClick={onSubmit} type="submit">
+      Commit
+    </button>
   </div>
 );
 

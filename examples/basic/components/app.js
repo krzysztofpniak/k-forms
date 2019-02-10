@@ -156,7 +156,11 @@ const App = () => {
 
   return (
     <Scope scope="app">
-      <SimpleButton text="Next Color" onClick={nextColor} />
+      <SimpleButton
+        text="Next Color"
+        onClick={nextColor}
+        color={colors[colorIndex]}
+      />
       <div>First Form</div>
       <Form
         scope="form0"

@@ -148,8 +148,10 @@ const SimpleButton = memo(({text, onClick, color}) => (
 const App = () => {
   const {colorIndex, nextColor} = useKReducer(appReducer, appActions);
   const handleSubmit = useCallback((defaultSubmitHandler, fields) => {
-    defaultSubmitHandler();
-    console.log(fields);
+    const errors = defaultSubmitHandler();
+    if (errors.length === 0) {
+      alert(JSON.stringify(fields, null, 2));
+    }
   }, []);
 
   return (

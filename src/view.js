@@ -610,7 +610,10 @@ const FormTemplate = ({fields, buttons}) => (
 
 const FormGroupTemplate = ({title, input, error}) => (
   <div>
-    {title} {input} {error}
+    <div>
+      {title} {input}
+    </div>
+    <div style={{color: 'red'}}>{error}</div>
   </div>
 );
 

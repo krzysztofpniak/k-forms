@@ -143,7 +143,7 @@ const App = () => {
   return (
     <Scope scope="app">
       <SimpleButton text="Next Color" onClick={nextColor} />
-      <div>pierwszy form</div>
+      <div>First Form</div>
       <Form
         scope="form0"
         schema={schema1}
@@ -151,7 +151,7 @@ const App = () => {
         args={{color: colors[colorIndex]}}
         onSubmit={handleSubmit}
       />
-      <div>drugi form</div>
+      <div>Second Form</div>
       <Form
         scope="form2"
         schema={schema2}
